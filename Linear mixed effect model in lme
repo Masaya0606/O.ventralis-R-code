@@ -1,0 +1,44 @@
+##Linear mixed effects model
+###read data
+OvData2<-read.xlsx("~/R_data/Oventralis_behavior_sperm200228.xlsx","Sheet2")
+
+##individual is categorized as factor for random effect
+OvData2$fName<-factor(OvData2$Name)
+
+##SPP120_pseud
+SPP_Ps.Full<-formula(LogRelativeSPP120_pseud~Encounter_rate_with_floating_male*condensation_of_the_bower*Success_rate_of_lekking)
+SPP_Ps2.lme.Full<-lme(SPP_Ps.Full, data=OvData2, random=~1|fName, method="ML")
+anova(SPP_Ps2.lme.Full)
+
+#Drop off
+SPP_Ps2.lme.Full.1<-update(SPP_Ps2.lme.Full,.~.-condensation_of_the_bower)
+SPP_Ps2.lme.Full.2<-update(SPP_Ps2.lme.Full,.~.-Success_rate_of_lekking)
+SPP_Ps2.lme.Full.3<-update(SPP_Ps2.lme.Full,.~.-Encounter_rate_with_floating_male:condensation_of_the_bower)
+SPP_Ps2.lme.Full.4<-update(SPP_Ps2.lme.Full,.~.-Encounter_rate_with_floating_male:Success_rate_of_lekking)
+SPP_Ps2.lme.Full.5<-update(SPP_Ps2.lme.Full,.~.-condensation_of_the_bower:Success_rate_of_lekking)
+SPP_Ps2.lme.Full.6<-update(SPP_Ps2.lme.Full,.~.-Encounter_rate_with_floating_male:condensation_of_the_bower:Success_rate_of_lekking)
+anova(SPP_Ps2.lme.Full,SPP_Ps2.lme.Full.1)
+
+##contunues drop off until you can't find the variables that can not be dropped off.
+##can't drop off anymore!!
+
+> SPP_Ps2.lme.4.REML<-lme(SPP_Ps.4, data=OvData2, random=~1|fName, method="REML")
+> summary(SPP_Ps2.lme.4.REML)
+Linear mixed-effects model fit by REML
+ Data: OvData2 
+       AIC      BIC    logLik
+  116.7842 123.3953 -51.39209
+
+Random effects:
+ Formula: ~1 | fName
+        (Intercept)  Residual
+StdDev:    2.364904 0.8868391
+
+Fixed effects: list(SPP_Ps.4) 
+                                                                                        Value Std.Error DF   t-value p-value
+(Intercept)                                                                          0.512264 1.3976572 19  0.366516  0.7180
+condensation_of_the_bower                                                           -0.876146 0.4389702 19 -1.995914  0.0605
+Encounter_rate_with_floating_male:Success_rate_of_lekking                           -2.145573 1.3321822 19 -1.610570  0.1238
+condensation_of_the_bower:Success_rate_of_lekking                                   -6.274641 2.3013549 19 -2.726499  0.0134
+condensation_of_the_bower:Encounter_rate_with_floating_male:Success_rate_of_lekking  3.607318 0.8907449 19  4.049777  0.0007
+
