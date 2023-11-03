@@ -1,44 +1,102 @@
 ##Linear mixed effects model
 ###read data
+library(xlsx)
 OvData2<-read.xlsx("~/R_data/Oventralis_behavior_sperm200228.xlsx","Sheet2")
+#read nlme packageplot
+library(nlme)
 
 ##individual is categorized as factor for random effect
 OvData2$fName<-factor(OvData2$Name)
 
-##SPP120_pseud
-SPP_Ps.Full<-formula(LogRelativeSPP120_pseud~Encounter_rate_with_floating_male*condensation_of_the_bower*Success_rate_of_lekking)
-SPP_Ps2.lme.Full<-lme(SPP_Ps.Full, data=OvData2, random=~1|fName, method="ML")
-anova(SPP_Ps2.lme.Full)
+#SPP120
+SPP.Full<-formula(Log_RelativeSPP_1_2~ERFM*DS*CSR)
+SPP.lme.Full<-lme(SPP.Full, data=OvData2, random=~1|fName, method="ML")
+anova(SPP.lme.Full)
+numDF denDF   F-value p-value
+(Intercept)     1    16 16.424578  0.0009
+ERFM            1    16  4.627208  0.0471
+DS              1    16  0.251875  0.6226
+CSR             1    16  0.320164  0.5794
+ERFM:DS         1    16  0.110265  0.7442
+ERFM:CSR        1    16  3.710517  0.0720
+DS:CSR          1    16  2.461595  0.1362
+ERFM:DS:CSR     1    16  0.027264  0.8709
 
 #Drop off
-SPP_Ps2.lme.Full.1<-update(SPP_Ps2.lme.Full,.~.-condensation_of_the_bower)
-SPP_Ps2.lme.Full.2<-update(SPP_Ps2.lme.Full,.~.-Success_rate_of_lekking)
-SPP_Ps2.lme.Full.3<-update(SPP_Ps2.lme.Full,.~.-Encounter_rate_with_floating_male:condensation_of_the_bower)
-SPP_Ps2.lme.Full.4<-update(SPP_Ps2.lme.Full,.~.-Encounter_rate_with_floating_male:Success_rate_of_lekking)
-SPP_Ps2.lme.Full.5<-update(SPP_Ps2.lme.Full,.~.-condensation_of_the_bower:Success_rate_of_lekking)
-SPP_Ps2.lme.Full.6<-update(SPP_Ps2.lme.Full,.~.-Encounter_rate_with_floating_male:condensation_of_the_bower:Success_rate_of_lekking)
-anova(SPP_Ps2.lme.Full,SPP_Ps2.lme.Full.1)
-
-##contunues drop off until you can't find the variables that can not be dropped off.
-##can't drop off anymore!!
-
-> SPP_Ps2.lme.4.REML<-lme(SPP_Ps.4, data=OvData2, random=~1|fName, method="REML")
-> summary(SPP_Ps2.lme.4.REML)
+SPP.lme.Full.1<-update(SPP.lme.Full,.~.-ERFM)
+anova(SPP.lme.Full, SPP.lme.Full.1)
+Model df      AIC      BIC    logLik   Test   L.Ratio p-value
+SPP.lme.Full       1 10 85.88984 97.67038 -32.94492                         
+SPP.lme.Full.1     2  9 84.04639 94.64888 -33.02320 1 vs 2 0.1565504  0.6924
+#Drop off DS:CSR due to smaller AIC and its no significance, and make dropped off formula.
+SPP.1<-formula(Log_RelativeSPP_2~DS+CSR+ERFM:DS+ERFM:CSR+DS:CSR+ERFM:DS:CSR)
+SPP.lme.1<-lme(SPP.1, data=OvData2, random=~1|fName, method="ML")
+anova(SPP.lme.1)
+numDF denDF   F-value p-value
+(Intercept)     1    17  0.349266  0.5623
+DS              1    17  0.024482  0.8775
+CSR             1    17  4.050896  0.0603
+DS:ERFM         1    17  1.899844  0.1860
+CSR:ERFM        1    17  2.387483  0.1407
+DS:CSR          1    17 18.337288  0.0005
+DS:CSR:ERFM     1    17  3.679807  0.0720
+#Drop off
+SPP.lme.1.1<-update(SPP.lme.1,.~.-DS:CSR)
+anova(SPP.lme.1, SPP.lme.1.1)
+Model df      AIC      BIC    logLik   Test  L.Ratio p-value
+SPP.lme.1       1  9 118.8891 129.4915 -50.44453                        
+SPP.lme.1.1     2  8 118.7438 128.1683 -51.37192 1 vs 2 1.854774  0.1732
+#Drop off DS:CSR due to smaller AIC and its no significance, and make dropped off formula.
+SPP.2<-formula(Log_RelativeSPP_2~DS+CSR+ERFM:DS+ERFM:CSR+ERFM:DS:CSR)
+SPP.lme.2<-lme(SPP.2, data=OvData2, random=~1|fName, method="ML")
+anova(SPP.lme.2)
+numDF denDF   F-value p-value
+(Intercept)     1    18  0.342308  0.5658
+DS              1    18  0.023994  0.8786
+CSR             1    18  3.970191  0.0617
+DS:ERFM         1    18  1.861994  0.1892
+CSR:ERFM        1    18  2.339918  0.1435
+DS:CSR:ERFM     1    18 20.239769  0.0003
+#Drop off and examine the differences
+SPP.lme.2.1<-update(SPP.lme.2,.~.-DS:CSR:ERFM)
+anova(SPP.lme.2, SPP.lme.2.1)
+#No more drop off
+Model df      AIC      BIC    logLik   Test L.Ratio p-value
+SPP.lme.2       1  8 118.7438 128.1683 -51.37192                       
+SPP.lme.2.1     2  7 134.8279 143.0743 -60.41397 1 vs 2 18.0841  <.0001
+#No more dropped off, summary of SPP.lme.2(ML) and re-check via REML no largely differences in between ML and REML.
+summary(SPP.lme.2)
+summary(SPP.lme.2.1)SPP.lme.2<-lme(SPP.2, data=OvData2, random=~1|fName, method="REML")
+summary(SPP.lme.2.REML)
 Linear mixed-effects model fit by REML
- Data: OvData2 
-       AIC      BIC    logLik
-  116.7842 123.3953 -51.39209
+Data: OvData2_3 
+AIC      BIC    logLik
+117.7512 124.8741 -50.87558
 
 Random effects:
- Formula: ~1 | fName
-        (Intercept)  Residual
-StdDev:    2.364904 0.8868391
+  Formula: ~1 | fName
+(Intercept)  Residual
+StdDev:    2.520705 0.9452644
 
-Fixed effects: list(SPP_Ps.4) 
-                                                                                        Value Std.Error DF   t-value p-value
-(Intercept)                                                                          0.512264 1.3976572 19  0.366516  0.7180
-condensation_of_the_bower                                                           -0.876146 0.4389702 19 -1.995914  0.0605
-Encounter_rate_with_floating_male:Success_rate_of_lekking                           -2.145573 1.3321822 19 -1.610570  0.1238
-condensation_of_the_bower:Success_rate_of_lekking                                   -6.274641 2.3013549 19 -2.726499  0.0134
-condensation_of_the_bower:Encounter_rate_with_floating_male:Success_rate_of_lekking  3.607318 0.8907449 19  4.049777  0.0007
+Fixed effects:  list(SPP.2) 
+Value Std.Error DF   t-value p-value
+(Intercept)   0.21365  1.602802 18  0.133295  0.8954
+DS            1.66113  1.078232 18  1.540600  0.1408
+CSR         -51.45892 12.451248 18 -4.132832  0.0006
+DS:ERFM      -0.90133  0.453675 18 -1.986727  0.0624
+CSR:ERFM     17.66657  3.793168 18  4.657471  0.0002
+DS:CSR:ERFM   1.43739  0.571941 18  2.513176  0.0217
+Correlation: 
+  (Intr) DS     CSR    DS:ERF CSR:ER
+DS           0.026                            
+CSR         -0.331 -0.741                     
+DS:ERFM     -0.368 -0.905  0.806              
+CSR:ERFM     0.046  0.783 -0.928 -0.743       
+DS:CSR:ERFM  0.644  0.229 -0.511 -0.553  0.225
 
+Standardized Within-Group Residuals:
+  Min          Q1         Med          Q3         Max 
+-0.52187794 -0.19811352  0.02909361  0.22107740  0.78505418 
+
+Number of Observations: 24
+Number of Groups: 24 
