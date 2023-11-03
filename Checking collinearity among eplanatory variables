@@ -1,0 +1,187 @@
+## Females' sperm shopping risk (FS_Risk) is mixed parameters of courtship success rates (CSR) and density of sandy patches (DS). 
+##Therefore we examined correlations among explanatory variables for this analyses,FS_Risk,CSR,DS, and encounter rates of floating male (ERFM)
+
+###read data
+library(xlsx)
+OvData2_3<-read.xlsx("~/R_data/Supplemenatry_data_data_set_for_analyses_3_5.xlsx","Sheet1")
+
+##individual is categorized as factor for random effect
+OvData2_3$fName<-factor(OvData2_3$Name)
+#read nlme packageplot
+library(nlme)
+
+##individual is categorized as factor for random effect
+OvData2_3$fName<-factor(OvData2_3$Name)
+#read nlme packageplot
+library(nlme)
+
+#CSR independent
+CSR.Full<-formula(CSR~ERFM+DS+FS_Risk)
+CSR.lme.Full<-lme(CSR.Full, data=OvData2_3, random=~1|fName, method="ML")
+anova(CSR.lme.Full)
+#No drop off
+CSR.lme.Full.REML<-lme(CSR.Full, data=OvData2_3, random=~1|fName, method="REML")
+summary(CSR.lme.Full.REML)
+Linear mixed-effects model fit by REML
+Data: OvData2_3 
+AIC      BIC    logLik
+22.11275 28.08714 -5.056375
+
+Random effects:
+  Formula: ~1 | fName
+(Intercept)   Residual
+StdDev:   0.2181988 0.08182454
+
+Fixed effects:  list(CSR.Full) 
+Value  Std.Error DF    t-value p-value
+(Intercept)  0.21622084 0.20315034 20  1.0643391  0.2999
+ERFM         0.01693423 0.05800892 20  0.2919245  0.7734
+DS           0.02317930 0.04513450 20  0.5135605  0.6132
+FS_Risk     -0.04506876 0.13015639 20 -0.3462662  0.7328
+Correlation: 
+  (Intr) ERFM   DS    
+ERFM     -0.909              
+DS       -0.204  0.035       
+FS_Risk  -0.091  0.080 -0.830
+
+Standardized Within-Group Residuals:
+  Min          Q1         Med          Q3         Max 
+-0.46450934 -0.25826145 -0.02040055  0.18587024  0.72102560 
+
+Number of Observations: 24
+Number of Groups: 24
+
+##ERFM indepedent
+ERFM.Full<-formula(ERFM~CSR+DS+FS_Risk)
+ERFM.lme.Full<-lme(ERFM.Full, data=OvData2_3, random=~1|fName, method="ML")
+anova(ERFM.lme.Full)
+numDF denDF   F-value p-value
+(Intercept)     1    20 261.00273  <.0001
+CSR             1    20   0.06470  0.8018
+DS              1    20   0.73497  0.4014
+FS_Risk        1    20   0.11255  0.7408
+##No more drop off
+ERFM.lme.Full.REML<-lme(ERFM.Full, data=OvData2_3, random=~1|fName, method="REML")
+summary(ERFM.lme.Full.REML)
+Linear mixed-effects model fit by REML
+Data: OvData2_3 
+AIC      BIC    logLik
+73.30507 79.27946 -30.65253
+
+Random effects:
+  Formula: ~1 | fName
+(Intercept)  Residual
+StdDev:   0.8393038 0.3147389
+
+Fixed effects:  list(ERFM.Full) 
+Value Std.Error DF   t-value p-value
+(Intercept)  3.1172800 0.3991630 20  7.809541  0.0000
+CSR          0.2505528 0.8582792 20  0.291925  0.7734
+DS          -0.0327134 0.1745981 20 -0.187364  0.8533
+FS_Risk    -0.1679911 0.5007393 20 -0.335486  0.7408
+Correlation: 
+  (Intr) CSR    DS    
+CSR      -0.581              
+DS       -0.271 -0.112       
+Risk_SPC -0.083  0.082 -0.838
+
+Standardized Within-Group Residuals:
+  Min          Q1         Med          Q3         Max 
+-0.61559766 -0.18222597 -0.07484705  0.17291881  0.83989648 
+
+Number of Observations: 24
+Number of Groups: 24 
+
+##DS indepedent
+DS.Full<-formula(DS~CSR+ERFM+FS_Risk)
+DS.lme.Full<-lme(DS.Full, data=OvData2_3, random=~1|fName, method="ML")
+anova(DS.lme.Full)
+numDF denDF   F-value p-value
+(Intercept)     1    20 145.02753  <.0001
+CSR             1    20   0.41378  0.5274
+ERFM            1    20   2.36657  0.1396
+FS_Risk         1    20  44.76137  <.0001
+#Drop off
+DS.lme.Full.1<-update(DS.lme.Full,.~.-Risk_SPC)
+anova(DS.lme.Full, DS.lme.Full.1)
+Model df       AIC       BIC    logLik   Test  L.Ratio p-value
+DS.lme.Full       1  6  82.31563  89.38395 -35.15781                        
+DS.lme.Full.1     2  5 108.51508 114.40534 -49.25754 1 vs 2 28.19945  <.0001
+#No more drop off
+DS.lme.Full.REML<-lme(DS.Full, data=OvData2_3, random=~1|fName, method="REML")
+summary(DS.lme.Full.REML)
+Linear mixed-effects model fit by REML
+Data: OvData2_3 
+AIC      BIC    logLik
+82.67304 88.64743 -35.33652
+
+Random effects:
+  Formula: ~1 | fName
+(Intercept)  Residual
+StdDev:    1.073949 0.4027311
+
+Fixed effects:  list(DS.Full) 
+Value Std.Error DF   t-value p-value
+(Intercept)  0.7861915 1.0126640 20  0.776360  0.4466
+CSR          0.5615175 1.0933814 20  0.513561  0.6132
+ERFM        -0.0535617 0.2858702 20 -0.187364  0.8533
+FS_Risk      2.3889310 0.3570688 20  6.690394  0.0000
+Correlation: 
+  (Intr) CSR    ERFM  
+CSR      -0.256              
+ERFM     -0.874 -0.061       
+FS_Risk -0.454 -0.032  0.197
+
+Standardized Within-Group Residuals:
+  Min         Q1        Med         Q3        Max 
+-0.3933767 -0.2111243 -0.1391617  0.1829633  1.1420793 
+
+Number of Observations: 24
+Number of Groups: 24 
+
+##FS Risk
+FS_Risk.Full<-formula(FS_Risk~CSR+ERFM+DS)
+FS_Risk.lme.Full<-lme(FS_Risk.Full, data=OvData2_3, random=~1|fName, method="ML")
+anova(Risk_SPC.lme.Full)
+numDF denDF   F-value p-value
+(Intercept)     1    20 108.43821  <.0001
+CSR             1    20   0.02807  0.8686
+ERFM            1    20   2.62606  0.1208
+DS              1    20  44.76137  <.0001
+#Drop off DS
+FS_Risk.lme.Full.1<-update(Risk_SPC.lme.Full,.~.-DS)
+anova(FS_Risk.lme.Full, FS_Risk.lme.Full.1)
+Model df      AIC      BIC     logLik   Test  L.Ratio p-value
+FS_Risk.lme.Full       1  6 31.65029 38.71861  -9.825144                        
+FS_Risk.lme.Full.1     2  5 57.84974 63.74001 -23.924868 1 vs 2 28.19945  <.0001
+# No more drop off
+FS_Risk.lme.Full.REML<-lme(FS_Risk.Full, data=OvData2_3, random=~1|fName, method="REML")
+summary(FS_Risk.lme.Full.REML)
+Linear mixed-effects model fit by REML
+Data: OvData2_3 
+AIC      BIC    logLik
+42.56298 48.53737 -15.28149
+
+Random effects:
+  Formula: ~1 | fName
+(Intercept)  Residual
+StdDev:   0.3737437 0.1401539
+
+Fixed effects:  list(Risk_SPC.Full) 
+Value Std.Error DF   t-value p-value
+(Intercept)  0.16997050 0.3556618 20  0.477899  0.6379
+CSR         -0.13222658 0.3818640 20 -0.346266  0.7328
+ERFM        -0.03331161 0.0992936 20 -0.335486  0.7408
+DS           0.28932351 0.0432446 20  6.690394  0.0000
+Correlation: 
+  (Intr) CSR    ERFM  
+CSR  -0.225              
+ERFM -0.867 -0.071       
+DS   -0.469 -0.090  0.188
+
+Standardized Within-Group Residuals:
+  Min           Q1          Med           Q3          Max 
+-0.877538867 -0.136145434  0.001748071  0.147131519  0.761444348 
+
+Number of Observations: 24
+Number of Groups: 24 
