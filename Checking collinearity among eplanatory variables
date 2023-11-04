@@ -10,11 +10,6 @@ OvData2_3$fName<-factor(OvData2_3$Name)
 #read nlme packageplot
 library(nlme)
 
-##individual is categorized as factor for random effect
-OvData2_3$fName<-factor(OvData2_3$Name)
-#read nlme packageplot
-library(nlme)
-
 #CSR independent
 CSR.Full<-formula(CSR~ERFM+DS+FS_Risk)
 CSR.lme.Full<-lme(CSR.Full, data=OvData2_3, random=~1|fName, method="ML")
