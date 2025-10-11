@@ -1,3 +1,3 @@
 # O.ventralis-R-codes
 
-This repository provides the R codes and data for the paper "Variation in sperm motility and seminal protein expression is shaped by pre- and post-mating sexual selection in the mouthbrooding cichlid (Ophthalmotilapia ventralis)", accepted for publication in Evolution. A link to the published article will be added once available.
+This repository provides the R code and data for the paper "Variation in sperm motility and seminal plasma protein expression is shaped by pre- and post-mating sexual selection in the mouthbrooding cichlid (Ophthalmotilapia ventralis)", to be published in Evolution, qpaf196, https://doi.org/10.1093/evolut/qpaf196.
